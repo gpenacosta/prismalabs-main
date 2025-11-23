@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Hero } from './components/Hero';
 import { BiomarkerGrid } from './components/BiomarkerGrid';
 import { DashboardPreview } from './components/DashboardPreview';
-import { Check } from 'lucide-react';
 import { ComparisonTable } from './components/ComparisonTable';
 import { Plans } from './components/Plans';
 import { CadastroPage } from './components/CadastroPage';
+import { AuthPage } from './components/AuthPage';
 import { 
   HowItWorks, 
   Experts, 
@@ -19,7 +19,11 @@ import { Logo } from './components/ui/Logo';
 
 /* ---------------- STICKY NAV ---------------- */
 
-const StickyNav: React.FC = () => {
+interface StickyNavProps {
+  onEntrar: () => void;
+}
+
+const StickyNav: React.FC<StickyNavProps> = ({ onEntrar }) => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -82,6 +86,7 @@ const StickyNav: React.FC = () => {
             'px-5 py-2 text-sm font-semibold rounded-full transition-colors shadow-lg',
             'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/10'
           )}
+          onClick={onEntrar}
         >
           Entrar
         </button>
@@ -95,12 +100,21 @@ const StickyNav: React.FC = () => {
 /* ---------------- APP / ROUTER EM ESTADO ---------------- */
 
 const App: React.FC = () => {
-  const [route, setRoute] = useState<'home' | 'cadastro'>('home');
+  const [route, setRoute] = useState<'home' | 'cadastro' | 'auth'>('home');
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
+
+  const goToDashboard = () => {
+    window.location.href = '/prismalabs-dashboard';
+  };
 
   const handleStartProgram = (programId: string) => {
     setSelectedProgram(programId);
     setRoute('cadastro');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleGoAuth = () => {
+    setRoute('auth');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -111,7 +125,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-cream text-slate-900 font-sans antialiased selection:bg-purple-200 selection:text-purple-900">
-      <StickyNav />
+      <StickyNav onEntrar={handleGoAuth} />
       {route === 'home' ? (
         <>
           <main id="visao-geral">
@@ -128,11 +142,19 @@ const App: React.FC = () => {
           </main>
           <Footer />
         </>
-      ) : (
+      ) : route === 'cadastro' ? (
         <main className="pt-24">
           <CadastroPage
             selectedProgram={selectedProgram}
             onGoHome={handleGoHome}
+            onGoDashboard={goToDashboard}
+          />
+        </main>
+      ) : (
+        <main className="pt-24">
+          <AuthPage
+            onGoHome={handleGoHome}
+            onAuthenticate={goToDashboard}
           />
         </main>
       )}

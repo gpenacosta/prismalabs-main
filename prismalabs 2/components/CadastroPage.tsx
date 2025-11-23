@@ -3,7 +3,17 @@ import React from 'react';
 import { cn } from '../lib/utils';
 import { Check } from 'lucide-react';
 
-export const CadastroPage: React.FC = () => {
+interface CadastroPageProps {
+  selectedProgram?: string | null;
+  onGoHome: () => void;
+  onGoDashboard: () => void;
+}
+
+export const CadastroPage: React.FC<CadastroPageProps> = ({
+  selectedProgram: selectedProgramProp = null,
+  onGoHome,
+  onGoDashboard,
+}) => {
   const [step, setStep] = React.useState<1 | 2 | 3>(1);
 
   const [formData, setFormData] = React.useState({
@@ -35,9 +45,14 @@ export const CadastroPage: React.FC = () => {
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
   React.useEffect(() => {
+    if (selectedProgramProp) {
+      setSelectedProgram(selectedProgramProp);
+      return;
+    }
+
     const params = new URLSearchParams(window.location.search);
     setSelectedProgram(params.get('programa'));
-  }, []);
+  }, [selectedProgramProp]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -140,8 +155,8 @@ export const CadastroPage: React.FC = () => {
     };
 
     console.log('Dados completos do cadastro:', finalData);
-    alert('Pagamento confirmado! Cadastro concluído.');
-    window.location.href = '/';
+    alert('Pagamento confirmado! Redirecionando para seu dashboard.');
+    onGoDashboard();
   };
 
   const inclusions = [
@@ -168,12 +183,13 @@ export const CadastroPage: React.FC = () => {
         <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-white/60 p-6 md:p-8">
           {/* Top nav */}
           <div className="mb-6">
-            <a
-              href="/"
+            <button
+              type="button"
+              onClick={onGoHome}
               className="text-slate-500 hover:text-purple-700 text-sm font-medium flex items-center gap-1 mb-4"
             >
               &larr; Voltar para home
-            </a>
+            </button>
 
             {selectedProgram && (
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 border border-purple-100 text-[11px] font-bold uppercase tracking-[0.16em] text-purple-700">
